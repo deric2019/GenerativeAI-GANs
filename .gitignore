@@ -163,6 +163,5 @@ cython_debug/
 
 checkpoints/
 results/
-models/
 data/
 *.jpg
