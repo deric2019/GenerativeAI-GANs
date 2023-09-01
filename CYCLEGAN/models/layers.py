@@ -2,7 +2,6 @@
 import tensorflow as tf
 import tensorflow_addons as tfa
 
-
 ### Custom layers
 class ReflectionPadding2D(tf.keras.layers.Layer):
     """Implements Reflection Padding as a layer.

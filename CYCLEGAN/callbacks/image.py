@@ -18,7 +18,8 @@ class GenerateSaveImagesCallback(tf.keras.callbacks.Callback):
                 dataset_A: tf.data.Dataset, 
                 dataset_B: tf.data.Dataset,
                 img_during_training_ckpt_dir: str,
-                save_every_n_epochs: int):
+                save_every_n_epochs: int, 
+                name_types: list[str]):
         """Generate and save the images during this training epoch
 
         Args:
@@ -39,6 +40,7 @@ class GenerateSaveImagesCallback(tf.keras.callbacks.Callback):
         self.img_during_training_ckpt_dir = img_during_training_ckpt_dir
 
         self.save_every_n_epochs = save_every_n_epochs
+        self.name_types = name_types
 
     def on_epoch_end(self, epoch, logs=None):
         # --------------------------
@@ -50,5 +52,4 @@ class GenerateSaveImagesCallback(tf.keras.callbacks.Callback):
             save_path = os.path.join(self.img_during_training_ckpt_dir, f'image_at_epoch_{epoch}.png')
             Visualization.plot_generated_images(gen_f=self.generator_f, gen_g=self.generator_g,
                                                 dataset_A=self.dataset_A, dataset_B=self.dataset_B,
-                                                    suptitle='', save_path=save_path, 
-                                                    training=True)
+                                                name_types=self.name_types,save_path=save_path, training=True)

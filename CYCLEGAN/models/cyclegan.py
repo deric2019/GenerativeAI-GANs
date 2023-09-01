@@ -13,7 +13,7 @@ import models.networks as networks
 
 class CYCLEGAN(tf.keras.Model):
     '''Cyclegan model'''
-    def __init__(self, lambda_cycle=10, lambda_identity=0.5):
+    def __init__(self, args):
         '''Cyclegan model. Init generators, discriminators, loss trackers and loss parameters
         Args:
             lambda_cycle (float): cycle loss parameter. Defaults to 10
@@ -35,8 +35,9 @@ class CYCLEGAN(tf.keras.Model):
         self.discriminator_y_loss_tracker = tf.keras.metrics.Mean(name='discriminator_y_loss')
 
         # Loss parameter
-        self.lambda_cycle = lambda_cycle
-        self.lambda_identity = lambda_identity
+        self.args = args
+        self.lambda_cycle = self.args.lambda_cycle
+        self.lambda_identity = self.args.lambda_identity
 
     def compile(self,
                 generator_f_optimizer, 
