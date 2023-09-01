@@ -12,7 +12,8 @@ def main(args):
             tr = Train(args)
             tr.train()
         case 'test':
-            Test.test()
+            te = Test(args)
+            te.test()
 
     match args.utils:
         case 'list_devices':
@@ -31,9 +32,11 @@ if __name__ == '__main__':
                         help= 'results dir name')
     
     # Data link and name
+    choice_list = ['apple2orange', 'summer2winter_yosemite', 'horse2zebra', 'monet2photo', 
+                   'cezanne2photo', 'ukiyoe2photo','vangogh2photo', 'iphone2dslr_flower']
     parser.add_argument('--dataset_url', type=str, default='http://efrosgans.eecs.berkeley.edu/cyclegan/datasets',
                         help= 'url link to dataset')
-    parser.add_argument('--dataset_name', type=str, required=True, 
+    parser.add_argument('--dataset_name', type=str, required=True, choices=choice_list,
                         help= 'name on the dataset to be loaded and trained')
     
     # Training parameters

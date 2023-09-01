@@ -28,6 +28,7 @@ class Test:
     def set_paths(self):
         # Results
         self.path_results_dir = self.args.results_dir
+        self.path_data_dir = self.args.data_dir
 
         self.path_train_dir = os.path.join(self.path_results_dir, 'train')
         self.path_image_during_training_gif = os.path.join(self.path_train_dir, 'image_during_training.gif')
@@ -52,15 +53,17 @@ class Test:
         self.path_csvlog_log_file = os.path.join(self.path_csvlog_ckpt_dir, 'training.log')
 
         # Videos
-        self.path_video_dir = os.path.join(self.args.data_dir, 'video')
-        self.path_videoA = os.path.join(self.path_video_dir, self.name_types[0] + '.mp4')
-        self.path_videoB = os.path.join(self.path_video_dir, self.name_types[1] + '.mp4')
+        self.path_data_video_dir = os.path.join(self.path_data_dir, 'video')
+        self.path_results_video_dir = os.path.join(self.path_results_dir, 'video')
+
+        self.path_data_videoA = os.path.join(self.path_data_video_dir, self.name_types[0] + '.mp4')
+        self.path_data_videoB = os.path.join(self.path_data_video_dir, self.name_types[1] + '.mp4')
 
         self.name_list_A2B = [f'{self.name_types[0]}2{self.name_types[1]}', 
                               f'{self.name_types[1]}2{self.name_types[0]}']
 
-        self.path_video_A2B_gif = os.path.join(self.path_results_dir, f'{self.name_list_A2B[0]}.gif')
-        self.path_video_B2A_gif = os.path.join(self.path_results_dir, f'{self.name_list_A2B[0]}.gif')
+        self.path_video_A2B_gif = os.path.join(self.path_results_video_dir, f'{self.name_list_A2B[0]}.gif')
+        self.path_video_B2A_gif = os.path.join(self.path_results_video_dir, f'{self.name_list_A2B[1]}.gif')
 
 
     def set_diverse_settings(self):
@@ -71,8 +74,9 @@ class Test:
         '''Generate images with the latest generator model on the train set and save it to the results results dir'''
         # Create results folders if it does not already exists
         self.initializing_results_folders()
-        self.train_results()
-        self.test_results()     
+        #self.train_results()
+        #self.test_results()     
+        self.video_results()
 
 
     def initializing_results_folders(self):
@@ -141,7 +145,7 @@ class Test:
     def video_results(self):
         '''Transform a video into the other style, save as GIFs'''
         # Paths to the videos to be transformed
-        video_paths = [self.path_videoA, self.path_videoB]
+        video_paths = [self.path_data_videoA, self.path_data_videoB]
         model_names = ['generator_g', 'generator_f']
         save_paths = [self.path_video_A2B_gif, self.path_video_B2A_gif]
         process_list = self.name_list_A2B
@@ -150,7 +154,7 @@ class Test:
         for video_path, model_name, save_path, process in zip(video_paths, model_names, save_paths, process_list):
             # If video file exists
             if os.path.exists(video_path):
-                FileManagement.create_folder_it_not_already_exists(self.path_video_dir)
+                FileManagement.create_folder_it_not_already_exists(self.path_results_video_dir)
 
                 # Load the latest generator
                 generator = FileManagement.load_trained_generator(self.path_model_ckpt_dir, model_name) 
