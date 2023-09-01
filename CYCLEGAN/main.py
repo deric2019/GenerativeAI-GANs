@@ -17,7 +17,11 @@ def main(args):
 
     match args.utils:
         case 'list_devices':
-            Utils.list_devices()        
+            ut = Utils(args)  
+            ut.list_devices()
+        case 'viz_data':
+            ut = Utils(args)  
+            ut.sample_from_data()    
 
 if __name__ == '__main__':
     # Object for parsing command line strings into Python objects.
@@ -38,6 +42,12 @@ if __name__ == '__main__':
                         help= 'url link to dataset')
     parser.add_argument('--dataset_name', type=str, required=True, choices=choice_list,
                         help= 'name on the dataset to be loaded and trained')
+    
+        # Dataset settings
+    parser.add_argument('--image_type', type=str, default='.jpg',
+                        help= 'dataset image type, default jpg but could also be png')
+    parser.add_argument('--compressed_type', type=str, default='.zip',
+                        help= 'compressed file download type, default zip, can be also be tar')
     
     # Training parameters
     parser.add_argument('--epochs', type=int, default=200,
@@ -65,11 +75,12 @@ if __name__ == '__main__':
                         help=   'train: train the model on the dataset \n' + 
                                 'test: generate results from training and on new test images, video')
 
-    choice_list = ['list_devices']
+    choice_list = ['list_devices', 'viz_data']
     parser.add_argument('-u','--utils', type=str, required=False, 
                         choices=choice_list, 
-                        help= 'list_devices: list physical devices')
+                        help= 'list_devices: list physical devices' + '\n' + 'viz_data: plot samples from dataset')
     # Parse args
     args = parser.parse_args()
+    
     # Call the main method
     main(args)

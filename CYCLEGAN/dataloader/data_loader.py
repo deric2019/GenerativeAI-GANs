@@ -25,84 +25,69 @@ class DataLoader:
         ### Data images dir
         self.data_name = self.args.dataset_name
         
-        self.path_data_dir = os.path.join(self.path_data_dir, self.data_name)
+        self.path_dataset_dir = os.path.join(self.path_data_dir, self.data_name)
 
         self.base_url = self.args.dataset_url
         self.url = os.path.join(self.base_url, self.data_name)
 
         ### Data images zip file
-        self.path_data_compressed = self.path_data_dir + '.zip'
+        self.path_data_compressed = self.path_dataset_dir + self.args.compressed_type
 
-        ### train, val, test folders
-        self.path_trainA = os.path.join(self.path_data_dir, 'trainA')
-        self.path_trainB = os.path.join(self.path_data_dir, 'trainB')
-
-        self.path_testA = os.path.join(self.path_data_dir, 'testA')
-        self.path_testB = os.path.join(self.path_data_dir, 'testB')
-
+    def load_dataset(self):
+        '''Load dataset from data, returns a dict of trainA, trainB, testA, testB'''
+        self.fetch_data()
+        self.list_dataset_folders()
+        return self.load_data_into_dataset()
+    
     def fetch_data(self):
         '''Download compressed file from URL and extract it'''
         
         # Creating a new data folder if it does not already exists
-        FileManagement.create_folder_it_not_already_exists(self.path_data_dir)
+        FileManagement.create_folder_it_not_already_exists(self.path_dataset_dir)
 
         # Download data from url
         FetchData.download_data_from_url(self.url, self.path_data_compressed)
 
         # Extract compressed file
-        FetchData.extract_compressed_file(self.path_data_compressed, self.path_data_dir)
+        FetchData.extract_compressed_file(self.path_data_compressed, self.path_dataset_dir)
+    
+    
+    def list_dataset_folders(self):
+        self.dataset_folder_list = os.listdir(self.path_dataset_dir)    
 
+    
     def load_data_into_dataset(self):
         'Returns a dictionary of '
         print('Loading and preprocessing the dataset ...')
-        # Read image paths 
-        trainA = tf.data.Dataset.list_files(self.path_trainA + '/*.jpg')
-        trainB = tf.data.Dataset.list_files(self.path_trainB + '/*.jpg')
-
-        testA = tf.data.Dataset.list_files(self.path_testA + '/*.jpg')
-        testB = tf.data.Dataset.list_files(self.path_testB + '/*.jpg')
+        
+        # Image type
+        img_type = self.args.image_type
         
         # Buffer and batch size for the dataset
         buffer_size = self.args.buffer_size
         batch_size = self.args.batch_size
 
-        # Map image paths to tensor and preprocess pictures
-        trainA = trainA.map(
-            InputPipeline.load_and_preprocess_image_train, 
-            num_parallel_calls=tf.data.AUTOTUNE).shuffle(buffer_size=buffer_size).batch(
-            batch_size=batch_size, drop_remainder=True)
+        # Allocate dataset
+        dataset = {}    
         
-        trainB = trainB.map(
-            InputPipeline.load_and_preprocess_image_train, 
-            num_parallel_calls=tf.data.AUTOTUNE).shuffle(buffer_size=buffer_size).batch(
-            batch_size=batch_size, drop_remainder=True)
-        
-        testA = testA.map(
-            InputPipeline.load_and_preprocess_image_test, 
-            num_parallel_calls=tf.data.AUTOTUNE).shuffle(buffer_size=buffer_size).batch(
-            batch_size=batch_size, drop_remainder=True)
-        
-        testB = testB.map(
-            InputPipeline.load_and_preprocess_image_test, 
-            num_parallel_calls=tf.data.AUTOTUNE).shuffle(buffer_size=buffer_size).batch(
-            batch_size=batch_size, drop_remainder=True)       
+        for folder in self.dataset_folder_list:
+            # Read image paths 
+            file_list_path = os.path.join(self.path_dataset_dir, folder + f'/*{img_type}')
+            dataset_file_list = tf.data.Dataset.list_files(file_list_path)
+
+            # Map image paths to tensor and preprocess pictures
+            if folder.startswith('train'):
+                dataset_part = dataset_file_list.map(
+                    InputPipeline.load_and_preprocess_image_train, 
+                    num_parallel_calls=tf.data.AUTOTUNE).shuffle(buffer_size=buffer_size).batch(
+                    batch_size=batch_size, drop_remainder=True)
+            elif folder.startswith('test'):
+                dataset_part = dataset_file_list.map(
+                    InputPipeline.load_and_preprocess_image_test, 
+                    num_parallel_calls=tf.data.AUTOTUNE).shuffle(buffer_size=buffer_size).batch(
+                    batch_size=batch_size, drop_remainder=True)        
+            dataset[folder] = dataset_part 
 
         print('Finished loading and preprocessing dataset ...')
-        print('Returning train_A, train_B, test_A, test_B dataset ...')
-        
-        return {'trainA': trainA, 'trainB': trainB, 
-                'testA' :testA, 'testB': testB}
-
-    ### Main function for data loading
-    def load_dataset(self):
-        '''Load dataset from data, returns a dict of trainA, trainB, testA, testB'''
-        # Download compressed file from URL and extract it 
-        self.fetch_data()
-
-        # Load images into a dataset
-        # Returns train_A, train_B, test_A, test_B
-        return self.load_data_into_dataset()
-
-
-
-
+        print(f'Returning a dataset with{dataset.keys()}')
+        return dataset
