@@ -74,8 +74,8 @@ class Test:
         '''Generate images with the latest generator model on the train set and save it to the results results dir'''
         # Create results folders if it does not already exists
         self.initializing_results_folders()
-        #self.train_results()
-        #self.test_results()     
+        self.train_results()
+        self.test_results()     
         self.video_results()
 
 

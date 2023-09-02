@@ -7,7 +7,6 @@ import tensorflow as tf
 
 # Configuration
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from config import Config
 
 # Classes
 from dataloader.fetch_data import FetchData
@@ -15,82 +14,91 @@ from dataloader.input_pipeline import InputPipeline
 from utils.file_management import FileManagement
 
 class DataLoader:
-    def fetch_data():
-        # Download compressed file from URL and extract it 
+    def __init__(self, args):
+        self.args = args
+        self.set_paths()
+
+    def set_paths(self):
+        ### Data folder to download zip 
+        self.path_data_dir = self.args.data_dir
+
+        ### Dataset dir
+        self.dataset_name = self.args.dataset_name
+        self.path_dataset_dir = os.path.join(self.path_data_dir, self.dataset_name)
+
+        self.base_url = self.args.dataset_url
+        self.url = os.path.join(self.base_url, self.dataset_name)
+
+        ### Data images zip file
+        self.path_dataset_compressed = self.path_dataset_dir + self.args.compressed_type
         
+    def load_dataset(self):
+        '''Load dataset from data, returns a dict of trainA, trainB, testA, testB'''
+        self.fetch_data()
+        self.list_dataset_folders()
+        return self.load_data_into_dataset()
+        
+
+    def fetch_data(self):
+        '''Download compressed file from URL and extract it'''
         # Creating a new data folder if it does not already exists
-        data_dir = Config.Path.Data.dir
-        FileManagement.create_folder_it_not_already_exists(data_dir)
+        FileManagement.create_folder_it_not_already_exists(self.path_data_dir)
 
         # Download data from url
-        url = Config.Path.Data.url
-        img_dir_compressed = Config.Path.Data.img_dir_compressed
-        FetchData.download_data_from_url(url, img_dir_compressed)
+        FetchData.download_data_from_url(self.url, self.path_dataset_compressed)
 
         # Extract compressed file
-        FetchData.extract_compressed_file(img_dir_compressed, data_dir)
+        FetchData.extract_compressed_file(self.path_dataset_compressed, self.path_data_dir)
 
-    def load_data_into_dataset():
+
+    def list_dataset_folders(self):
+        self.dataset_folder_list = [folder for folder in os.listdir(self.path_dataset_dir) if not folder.startswith('.')]
+        
+
+    def load_data_into_dataset(self):
         print('Loading and preprocessing the dataset ...')
-        img_type = Config.Settings.img_type
-
-        img_train_path = Config.Path.Data.img_train
-        img_val_path = Config.Path.Data.img_val
-        img_test_path = Config.Path.Data.img_test
+        # Image type
+        img_type = self.args.image_type
 
         # Buffer and batch size for the dataset
-        buffer_size = Config.ModelParam.buffer_size
-        batch_size = Config.ModelParam.batch_size
-        
-        img_dataset = {}
+        buffer_size = self.args.buffer_size
+        batch_size = self.args.batch_size
 
-        # Read image paths 
-        # Map image paths to tensor and preprocess pictures
-        img_train = tf.data.Dataset.list_files(img_train_path + f'/*{img_type}')
-        img_train = img_train.map(
-            InputPipeline.load_and_preprocess_image_train, 
-            num_parallel_calls=tf.data.AUTOTUNE).shuffle(buffer_size=buffer_size).batch(
-            batch_size=batch_size, drop_remainder=True)
-        img_dataset['train'] = img_train
+        # Allocate dataset
+        dataset = {}
 
-        # Img_val if it exists
-        if Config.Path.Data.img_val:
+        # Assign global variables to input pipe line
+        input_pipeline = InputPipeline()
+        input_pipeline.set_global_variable(self.args.input_on_the_right)
+
+        for folder in self.dataset_folder_list:
             # Read image paths 
-            img_val = tf.data.Dataset.list_files(img_val_path + f'/*{img_type}')
-            img_val = img_val.map(
-                InputPipeline.load_and_preprocess_image_val, 
-                num_parallel_calls=tf.data.AUTOTUNE).shuffle(buffer_size=buffer_size).batch(
-                batch_size=batch_size, drop_remainder=True)
-            img_dataset['val'] = img_val
-        else:
-            img_dataset['val'] = None
+            # Map image paths to tensor and preprocess pictures
+            file_list_path = os.path.join(self.path_dataset_dir, folder + f'/*{img_type}')
+            dataset_file_list = tf.data.Dataset.list_files(file_list_path)
+            match folder:
+                case 'train': 
+                    dataset_part = dataset_file_list.map(
+                        input_pipeline.load_and_preprocess_image_train, 
+                        num_parallel_calls=tf.data.AUTOTUNE).shuffle(buffer_size=buffer_size).batch(
+                        batch_size=batch_size, drop_remainder=True)
+                case 'val':
+                    dataset_part = dataset_file_list.map(
+                        input_pipeline.load_and_preprocess_image_val, 
+                        num_parallel_calls=tf.data.AUTOTUNE).shuffle(buffer_size=buffer_size).batch(
+                        batch_size=batch_size, drop_remainder=True)
+                case'test':
+                    dataset_part = dataset_file_list.map(
+                        input_pipeline.load_and_preprocess_image_test, 
+                        num_parallel_calls=tf.data.AUTOTUNE).shuffle(buffer_size=buffer_size).batch(
+                        batch_size=batch_size, drop_remainder=True)
+            
+            dataset[folder] = dataset_part 
 
-        # Img_val if it exists
-        if Config.Path.Data.img_test:
-            img_test = tf.data.Dataset.list_files(img_test_path + f'/*{img_type}')
-            img_test = img_test.map(
-                InputPipeline.load_and_preprocess_image_test, 
-                num_parallel_calls=tf.data.AUTOTUNE).shuffle(buffer_size=buffer_size).batch(
-                batch_size=batch_size, drop_remainder=True)
-            img_dataset['test'] = img_test
-        else:
-            img_dataset['test'] = None    
-
-        img_dataset['val'] = img_dataset['test'] if not img_dataset['val'] else img_dataset['val']
-        img_dataset['test'] = img_dataset['val'] if not img_dataset['test'] else img_dataset['test']
+        dataset['val'] = dataset['test'] if 'val' not in dataset else dataset['val']
+        dataset['test'] = dataset['val'] if 'test'not in dataset['test'] else dataset['test']
 
         print('Finished loading and preprocessing dataset ...')
         print('Returning img_train, img_val, img_test dataset ...')
         
-        return img_dataset
-
-
-    ### Main function for data loading
-    def load_dataset():
-        '''Load dataset from data, returns a dictionary of train, test, val'''
-        # Download compressed file from URL and extract it 
-        DataLoader.fetch_data()
-
-        # Load images into a dataset
-        # Dictionary of two types
-        return DataLoader.load_data_into_dataset()
+        return dataset
