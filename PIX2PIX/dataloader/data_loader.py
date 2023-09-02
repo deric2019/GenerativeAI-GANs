@@ -52,7 +52,11 @@ class DataLoader:
 
 
     def list_dataset_folders(self):
+<<<<<<< HEAD
         self.dataset_folder_list = [folder for folder in os.listdir(self.path_dataset_dir) if not folder.startswith('.')]
+=======
+        self.dataset_folder_list = [folder for folder in os.listdir(self.path_dataset_dir) if not f.startswith('.')]
+>>>>>>> 110b6bbb56fae00beefd765387c03ea7b278f4e6
         
 
     def load_data_into_dataset(self):
