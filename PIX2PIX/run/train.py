@@ -126,7 +126,7 @@ class Train:
         images_callback = GenerateSaveImagesCallback(generator=pix2pix_o.generator, 
                                                      dataset = dataset['val'], 
                                                      img_during_training_ckpt_dir=self.path_img_during_training_ckpt_dir,
-                                                     save_every_n_epochs=self.save_every_n_epochs
+                                                     save_every_n_epochs=self.save_image_every_n_epochs
                                                      )
         
         csvlog_ckpt_callback = tf.keras.callbacks.CSVLogger(filename=self.path_csvlog_log_file, append=True)
@@ -137,7 +137,7 @@ class Train:
         # Initializing of checkpoints
         # -----------------------------
         # Also returns the latest epoch
-        epoch_i = Train.initializing_checkpoints_folders()
+        epoch_i = self.initializing_checkpoints_folders()
 
         # --------------------
         # Train model

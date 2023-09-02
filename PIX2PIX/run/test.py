@@ -46,7 +46,7 @@ class Test():
         self.path_csvlog_log_file = os.path.join(self.path_csvlog_ckpt_dir, 'training.log')
     
     def set_diverse_settings(self):
-        self.n_generated_images_test = 20
+        self.n_generated_images_test = 10
     
     def test(self):
         '''Generate images with the latest generator model on the train set and save it to the results results dir'''

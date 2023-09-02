@@ -37,7 +37,7 @@ if __name__ == '__main__':
                         help= 'results dir name')
     
     # Data link and name
-    choice_list = ['cityscapes', 'edges2handbags', 'edges2shoes', 'facades', 'maps', 'night2day']
+    choice_list = ['cityscapes', 'edges2handbags', 'edges2shoes', 'facades', 'maps', 'night2day', 'facades_small']
     parser.add_argument('--dataset_url', type=str, default='http://efrosgans.eecs.berkeley.edu/pix2pix/datasets',
                         help= 'url link to dataset')
     parser.add_argument('--dataset_name', type=str, required=True, choices=choice_list,
@@ -66,8 +66,8 @@ if __name__ == '__main__':
     parser.add_argument('--beta_1', type=float, default=0.5,
                         help= 'beta_1 parameter for the adam optimizer')
     gen_loss_list= ['gen_total_loss', 'gen_adv_loss', 'gen_l1_loss']
-    parser.add_argument('--loss_to_optimize', type=float, default=0.5,choices=gen_loss_list,
-                        help= 'choose which loss to opimize, default total generator loss')
+    parser.add_argument('--loss_to_optimize', type=str, default='gen_total_loss', choices=gen_loss_list,
+                        help= 'choose which loss to optimize, default total generator loss')
 
     # Training loss
     # Training optimizer
@@ -88,5 +88,6 @@ if __name__ == '__main__':
                                 'viz_data: plot samples from dataset')
     # Parse args
     args = parser.parse_args()
+    
     # Call the main method
     main(args)
