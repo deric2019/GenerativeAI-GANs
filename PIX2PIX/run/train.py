@@ -3,15 +3,12 @@ import os
 import sys 
 import glob
 
-# Configuration
+# Add project to path
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from config import Config
 
 # Data science libraries
 import numpy as np
 import tensorflow as tf
-
-
 
 # Classes
 from dataloader.data_loader import DataLoader 
@@ -23,29 +20,87 @@ from callbacks.image import GenerateSaveImagesCallback
 from callbacks.model import SaveLoadGeneratorDiscriminatorCallback
 
 
-'''
-Main functions for the project, can also be seen as modes of the project
-'''
-class Train():
+class Train:
     '''Class consisting of function acting on the model'''
-    def train():
+    def __init__(self, args) -> None:
+        self.args = args
+        self.set_paths()
+        self.set_diverse_settings()
+
+    def set_paths(self):
+        ### Checkpoints
+        self.path_ckpt_dir = self.args.checkpoints_dir
+
+        # Epoch
+        self.path_epoch_ckpt_dir = os.path.join(self.path_ckpt_dir, 'epoch')
+        self.path_epoch_i_npy_file =  os.path.join(self.path_epoch_ckpt_dir, '*.npy')
+
+        # Model: generator and discriminator
+        self.path_model_ckpt_dir = os.path.join(self.path_ckpt_dir, 'models')
+                    
+        # Images during training
+        self.path_image_during_training_names = 'image_at_epoch_*.png'
+        self.path_img_during_training_ckpt_dir = os.path.join(self.path_ckpt_dir, 'images_during_training')
+        self.path_img_during_training_images = os.path.join(self.path_img_during_training_ckpt_dir, self.path_image_during_training_names)
+
+        # csvlog 
+        self.path_csvlog_ckpt_dir = os.path.join(self.path_ckpt_dir, 'csvlog')
+        self.path_csvlog_log_file = os.path.join(self.path_csvlog_ckpt_dir, 'training.log')
+
+
+    def set_diverse_settings(self):
+        '''Customize how you want'''
+        self.save_all_models = False
+        self.num_ckpt_to_save = 3
+        self.save_image_every_n_epochs = 1
+
+
+
+    def initializing_checkpoints_folders(self):
+        '''Creating the checkpoint and csv logger dir if it dos not already exists'''
+        # Checkpoint dir
+        FileManagement.create_folder_it_not_already_exists(self.path_ckpt_dir)
+
+        FileManagement.create_folder_it_not_already_exists(self.path_model_ckpt_dir)
+        
+        # Create an csvlog dir 
+        FileManagement.create_folder_it_not_already_exists(self.path_csvlog_ckpt_dir)
+
+        ### Create an image directory if it does not already exists
+        FileManagement.create_folder_it_not_already_exists(self.path_img_during_training_ckpt_dir)
+
+        # Resume epoch number have trained before
+        epoch_ckpt_dir = self.path_epoch_ckpt_dir
+        epoch_i_npy_file = self.path_epoch_i_npy_file
+        
+        epoch_i = 0
+        if os.path.exists(epoch_ckpt_dir):
+            list_of_files = glob.glob(epoch_i_npy_file)
+            epoch_i = np.load(list_of_files[0])
+            
+            print(f'Latest saved epoch: {epoch_i} ...')
+            print(f'Resuming training from epoch {epoch_i+1} ...')
+
+        return epoch_i
+    
+    def train(self):
         '''Train the our model'''
         # --------------
         # Load dataset
         # --------------
-        dataset_dict = DataLoader.load_dataset()
-        
+        dl = DataLoader(self.args)
+        dataset = dl.load_dataset()
+
         # -----------------------------
         # Create instance of cyclegan
         # ------------------------------
-        loss_to_optimize = Config.Settings.loss_to_optimize
-        pix2pix_o = PIX2PIX(loss_to_optimize=loss_to_optimize)
+        pix2pix_o = PIX2PIX(self.args)
 
         # -----------------------------
         # Optimizers and loss functions
         # ------------------------------
         # Compile the model
-        lr, beta_1 = Config.ModelParam.learning_rate, Config.ModelParam.learning_rate
+        lr, beta_1 = self.args.learning_rate, self.args.beta_1
         pix2pix_o.compile(
             generator_optimizer=tf.keras.optimizers.Adam(learning_rate=lr, beta_1=beta_1),
             discriminator_optimizer=tf.keras.optimizers.Adam(learning_rate=lr, beta_1=beta_1),
@@ -58,30 +113,23 @@ class Train():
         # Callbacks
         # --------------------
         ### Epoch
-        epoch_ckpt_dir = Config.Path.Checkpoints.epoch_ckpt_dir
-        epoch_i_npy_file = Config.Path.Checkpoints.epoch_i_npy_file
-        epoch_ckpt_callback = EpochCallback(epoch_ckpt_dir, epoch_i_npy_file)
+        epoch_ckpt_callback = EpochCallback(self.path_epoch_ckpt_dir, self.path_epoch_i_npy_file)
 
         ### Models
-        model_ckpt_dir = Config.Path.Checkpoints.model_ckpt_dir
-        num_ckpt_to_save = Config.Settings.num_ckpt_to_save
-        save_all_models = Config.Settings.save_all_models
         model_ckpt_callback = SaveLoadGeneratorDiscriminatorCallback(model_list=[pix2pix_o.generator, 
                                                                                pix2pix_o.discriminator],
-                                                                                model_ckpt_dir=model_ckpt_dir,
-                                                                                num_ckpt_to_save=num_ckpt_to_save,
-                                                                                save_all=save_all_models)
+                                                                                model_ckpt_dir=self.path_model_ckpt_dir,
+                                                                                num_ckpt_to_save=self.num_ckpt_to_save,
+                                                                                save_all=self.save_all_models)
         
         ### Images
-        img_during_training_ckpt_dir = Config.Path.Checkpoints.img_during_training_ckpt_dir
-        save_every_n_epochs = Config.Settings.save_image_every_n_epochs
         images_callback = GenerateSaveImagesCallback(generator=pix2pix_o.generator, 
-                                                     dataset = dataset_dict['val'], 
-                                                     img_during_training_ckpt_dir=img_during_training_ckpt_dir,
-                                                     save_every_n_epochs=save_every_n_epochs
+                                                     dataset = dataset['val'], 
+                                                     img_during_training_ckpt_dir=self.path_img_during_training_ckpt_dir,
+                                                     save_every_n_epochs=self.save_every_n_epochs
                                                      )
         
-        csvlog_ckpt_callback = tf.keras.callbacks.CSVLogger(filename=Config.Path.Checkpoints.csvlog_log_file, append=True)
+        csvlog_ckpt_callback = tf.keras.callbacks.CSVLogger(filename=self.path_csvlog_log_file, append=True)
         
         callback_list = [epoch_ckpt_callback, model_ckpt_callback, images_callback, csvlog_ckpt_callback]
 
@@ -94,36 +142,4 @@ class Train():
         # --------------------
         # Train model
         # --------------------
-        pix2pix_o.fit(dataset_dict['train'], epochs=Config.ModelParam.epochs, initial_epoch=epoch_i, callbacks=callback_list)
-
-
-    def initializing_checkpoints_folders():
-        '''Creating the checkpoint and csv logger dir if it dos not already exists'''
-        # Checkpoint dir
-        ckpt_dir = Config.Path.Checkpoints.dir
-        FileManagement.create_folder_it_not_already_exists(ckpt_dir)
-
-        model_ckpt_dir = Config.Path.Checkpoints.model_ckpt_dir
-        FileManagement.create_folder_it_not_already_exists(model_ckpt_dir)
-        
-        # Create an csvlog dir 
-        csvlog_ckpt_dir = Config.Path.Checkpoints.csvlog_ckpt_dir
-        FileManagement.create_folder_it_not_already_exists(csvlog_ckpt_dir)
-
-        ### Create an image directory if it does not already exists
-        img_during_training_ckpt_dir = Config.Path.Checkpoints.img_during_training_ckpt_dir
-        FileManagement.create_folder_it_not_already_exists(img_during_training_ckpt_dir)
-
-        # Resume epoch number have trained before
-        epoch_ckpt_dir = Config.Path.Checkpoints.epoch_ckpt_dir
-        epoch_i_npy_file = Config.Path.Checkpoints.epoch_i_npy_file
-        
-        epoch_i = 0
-        if os.path.exists(epoch_ckpt_dir):
-            list_of_files = glob.glob(epoch_i_npy_file)
-            epoch_i = np.load(list_of_files[0])
-            
-            print(f'Latest saved epoch: {epoch_i} ...')
-            print(f'Resuming training from epoch {epoch_i+1} ...')
-
-        return epoch_i
+        pix2pix_o.fit(dataset['train'], epochs=self.args.epochs, initial_epoch=epoch_i, callbacks=callback_list)

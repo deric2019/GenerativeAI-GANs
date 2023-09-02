@@ -7,7 +7,19 @@ import tensorflow as tf
 class InputPipeline:
     '''Help functions such as loading and precprocessing images
     Images are tensors'''
-    def load_image(image_file: str, edges_on_the_left=True):
+
+    GLOBAL_ARGS = None
+
+    @staticmethod
+    def set_global_variable(value):
+        InputPipeline.GLOBAL_ARGS = value
+
+    @staticmethod
+    def get_global_variable():
+        return InputPipeline.GLOBAL_ARGS    
+
+    @staticmethod
+    def load_image(image_file: str):
         '''Split the image (512,512,3) into input and real image (256,256,3)
         Convert them into tf.float32
         Args:
@@ -23,9 +35,12 @@ class InputPipeline:
         # Slice the image in half vertically
         w = tf.shape(image)[1]
         w = w // 2
+        
+        input_on_the_right = InputPipeline.get_global_variable()
 
-        input_image = image[:, :w, :] if edges_on_the_left else image[:, w:, :] 
-        real_image = image[:, w:, :] if edges_on_the_left else image[:, :w, :] 
+        input_on_the_right = True if input_on_the_right == 'right' else False
+        input_image = image[:, w:, :] if input_on_the_right else image[:, :w, :] 
+        real_image = image[:, :w, :] if input_on_the_right else image[:, w:, :] 
 
         # Convert both images to float32 tensors
         input_image = tf.cast(input_image, tf.float32)
@@ -33,7 +48,7 @@ class InputPipeline:
 
         return input_image, real_image
     
-    
+    @staticmethod
     def resize_image(input_image, real_image, height, width):
         '''Resize image into the wanted shape'''
         input_image = tf.image.resize(input_image, [height, width],
@@ -43,6 +58,7 @@ class InputPipeline:
 
         return input_image, real_image
     
+    @staticmethod
     def random_crop(input_image, real_image):
         '''Crop a stacked image'''
         # Stacked image: (512, 256, 3)
@@ -53,7 +69,7 @@ class InputPipeline:
                                              size=[2, 256, 256, 3])
         return cropped_image[0], cropped_image[1]
     
-
+    @staticmethod
     def normalize(input_image, real_image):
         '''  Normalizing the images to [-1, 1]'''
         input_image = (input_image / 127.5) - 1
@@ -61,6 +77,7 @@ class InputPipeline:
 
         return input_image, real_image
     
+    @staticmethod
     @tf.function()
     def random_jitter(input_image, real_image):
         '''Resizing to 286x286'''
@@ -76,6 +93,7 @@ class InputPipeline:
 
         return input_image, real_image
 
+    @staticmethod
 
     def load_and_preprocess_image_train(image_file):
         '''Load an image from the train set and preprocess it'''
@@ -85,6 +103,7 @@ class InputPipeline:
 
         return input_image, real_image
     
+    @staticmethod
     def load_and_preprocess_image_val(image_file):
         '''Load an image from the test set and preprocess it'''
         input_image, real_image = InputPipeline.load_image(image_file)
@@ -94,6 +113,7 @@ class InputPipeline:
 
         return input_image, real_image
     
+    @staticmethod
     def load_and_preprocess_image_test(image_file):
         '''Load an image from the test set and preprocess it'''
         input_image, real_image = InputPipeline.load_image(image_file)

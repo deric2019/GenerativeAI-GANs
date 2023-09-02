@@ -12,7 +12,7 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 import models.networks as networks
 
 class PIX2PIX(tf.keras.Model):
-    def __init__(self, loss_to_optimize: str):
+    def __init__(self, args):
         """ Init discriminator and generator
 
         Args:
@@ -21,7 +21,6 @@ class PIX2PIX(tf.keras.Model):
             loss_to_optimize (str): a string to choose which loss to optimize
         """
         super().__init__()
-
         self.discriminator = networks.define_patch_discriminator(model_name='discriminator')
         self.generator = networks.define_unet_generator(model_name='generator')
 
@@ -31,10 +30,11 @@ class PIX2PIX(tf.keras.Model):
         self.gen_adv_loss_tracker = tf.keras.metrics.Mean(name='gen_adv_loss')
         self.gen_l1_loss_tracker = tf.keras.metrics.Mean(name='gen_l1_loss')
 
+        self.args = args
+        
         # Lambda loss parameter
-        self.lambda_l1 = 100
-
-        self.loss_to_optimize = loss_to_optimize
+        self.lambda_l1 = self.args.lambda_l1
+        self.loss_to_optimize = self.args.loss_to_optimize
 
     def compile(self,
                 generator_optimizer,
