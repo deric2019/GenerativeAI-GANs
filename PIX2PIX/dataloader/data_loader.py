@@ -53,7 +53,6 @@ class DataLoader:
 
     def list_dataset_folders(self):
         self.dataset_folder_list = [folder for folder in os.listdir(self.path_dataset_dir) if not folder.startswith('.')]
-        
 
     def load_data_into_dataset(self):
         print('Loading and preprocessing the dataset ...')
