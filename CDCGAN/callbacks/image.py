@@ -14,20 +14,23 @@ from utils.visualization import Visualization
 class GenerateSaveImagesCallback(tf.keras.callbacks.Callback):
     '''Generate and save the images during this training epoch'''
     def __init__(self, generator: tf.keras.Model, 
-                dataset: tf.data.Dataset,
+                n_classes: int,  
+                latent_dim: int,
                 img_during_training_ckpt_dir: str,
                 save_every_n_epochs: int):
         """Generate and save the images during this training epoch
 
         Args:
-            generator (tf.keras.Model): generator_f model
-            dataset (tf.data.Dataset): dataset to feed generator
+            generator_f (tf.keras.Model): generator_f model
+            n_classes (int): number of class labels
+            latent_dim (int):  latent dim
             img_during_training_ckpt_dir (str):  path to the folder where the images saves
             save_every_n_epochs (int): save image every n epochs
         """
         super().__init__()
         self.generator = generator
-        self.dataset = dataset
+        self.n_classes = n_classes
+        self.latent_dim = latent_dim
 
         self.img_during_training_ckpt_dir = img_during_training_ckpt_dir
 
@@ -42,6 +45,7 @@ class GenerateSaveImagesCallback(tf.keras.callbacks.Callback):
             # Generate and save the images during this epoch test dataset
             save_path = os.path.join(self.img_during_training_ckpt_dir, f'image_at_epoch_{epoch}.png')
             Visualization.plot_generated_images(gen_o=self.generator, 
-                                                dataset=self.dataset,
+                                                n_classes=self.n_classes,
+                                                latent_dim=self.latent_dim,
                                                 suptitle='', save_path=save_path, 
                                                 training=True)

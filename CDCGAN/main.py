@@ -17,58 +17,52 @@ def main(args):
 
     match args.utils:
         case 'list_devices':
+            ut = Utils(args)  
             ut.list_devices()
         case 'viz_data':
             ut = Utils(args)  
-            ut.sample_from_data()    
+            ut.sample_from_data()
         case 'summary_networks':
             ut = Utils(args)  
             ut.summary_networks() 
+
 
 if __name__ == '__main__':
     # Object for parsing command line strings into Python objects.
     parser = argparse.ArgumentParser(description='Available argument: mode, utils',
                                     formatter_class=argparse.RawTextHelpFormatter)
     # Folders to create
-    parser.add_argument('--data_dir', type=str, default='data',
-                        help= 'data dir name')
     parser.add_argument('--checkpoints_dir', type=str, default='checkpoints',
                         help= 'checkpoints dir name')
     parser.add_argument('--results_dir', type=str, default='results',
                         help= 'results dir name')
     
     # Data link and name
-    choice_list = ['apple2orange', 'summer2winter_yosemite', 'horse2zebra', 'monet2photo', 
-                   'cezanne2photo', 'ukiyoe2photo','vangogh2photo', 'iphone2dslr_flower']
-    parser.add_argument('--dataset_url', type=str, default='http://efrosgans.eecs.berkeley.edu/cyclegan/datasets',
-                        help= 'url link to dataset')
+    choice_list = ['mnist', 'fashion_mnist']
     parser.add_argument('--dataset_name', type=str, required=False, choices=choice_list,
                         help= 'name on the dataset to be loaded and trained')
-    
-        # Dataset settings
-    parser.add_argument('--image_type', type=str, default='.jpg',
-                        help= 'dataset image type, default jpg but could also be png')
-    parser.add_argument('--compressed_type', type=str, default='.zip',
-                        help= 'compressed file download type, default zip, can be also be tar')
-    
+
     # Training parameters
-    parser.add_argument('--epochs', type=int, default=200,
+    parser.add_argument('--latent_dim', type=int, default=100,
+                        help= 'latent dimension of sample space')
+    parser.add_argument('--n_classes', type=int, default=10,
+                        help= 'number of label classes')
+    
+    parser.add_argument('--epochs', type=int, default=100,
                         help= 'number of epochs')
-    parser.add_argument('--batch_size', type=int, default=1,
+    parser.add_argument('--batch_size', type=int, default=128,
                         help= 'batch_size')
     parser.add_argument('--buffer_size', type=int, default=360,
                         help= 'buffer size for shuffle')
+    
     # Training optimizer
     parser.add_argument('--learning_rate', type=float, default=2e-4,
                         help= 'learning rate for the adam optimizer')
     parser.add_argument('--beta_1', type=float, default=0.5,
                         help= 'beta_1 parameter for the adam optimizer')
-    # Training loss
-    # Training optimizer
-    parser.add_argument('--lambda_cycle', type=float, default=10,
-                        help= 'cycle loss parameter')
-    parser.add_argument('--lambda_identity', type=float, default=0.5,
-                        help= 'identity loss parameter')
+    gen_loss_list= ['gen_total_loss', 'gen_adv_loss', 'gen_l1_loss']
+    parser.add_argument('--loss_to_optimize', type=str, default='gen_total_loss', choices=gen_loss_list,
+                        help= 'choose which loss to optimize, default total generator loss')
     
     # Optimizers
     choice_list = ['train', 'test']

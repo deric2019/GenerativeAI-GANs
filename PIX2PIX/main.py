@@ -22,6 +22,9 @@ def main(args):
         case 'viz_data':
             ut = Utils(args)  
             ut.sample_from_data()
+        case 'summary_networks':
+            ut = Utils(args)  
+            ut.summary_networks() 
 
 
 if __name__ == '__main__':
@@ -37,10 +40,10 @@ if __name__ == '__main__':
                         help= 'results dir name')
     
     # Data link and name
-    choice_list = ['cityscapes', 'edges2handbags', 'edges2shoes', 'facades', 'maps', 'night2day', 'facades_small']
+    choice_list = ['cityscapes', 'edges2handbags', 'edges2shoes', 'facades', 'maps', 'night2day']
     parser.add_argument('--dataset_url', type=str, default='http://efrosgans.eecs.berkeley.edu/pix2pix/datasets',
                         help= 'url link to dataset')
-    parser.add_argument('--dataset_name', type=str, required=True, choices=choice_list,
+    parser.add_argument('--dataset_name', type=str, required=False, choices=choice_list,
                         help= 'name on the dataset to be loaded and trained')
     
 
@@ -81,11 +84,12 @@ if __name__ == '__main__':
                         help=   'train: train the model on the dataset \n' + 
                                 'test: generate results from training and on new test images, video')
 
-    choice_list = ['list_devices', 'viz_data']
+    choice_list = ['list_devices', 'viz_data', 'summary_networks']
     parser.add_argument('-u','--utils', type=str, required=False, 
                         choices=choice_list, 
-                        help= 'list_devices: list physical devices' + '\n' +
-                                'viz_data: plot samples from dataset')
+                        help= 'list_devices: list physical devices\n' + 
+                        'viz_data: plot samples from dataset\n' + 
+                        'summary_networks: plot networks and parameters')
     # Parse args
     args = parser.parse_args()
     

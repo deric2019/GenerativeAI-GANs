@@ -28,11 +28,11 @@ class Utils():
         for device in tf.config.list_physical_devices():
             print(device)
 
-    @staticmethod
-    def summary_networks(): 
+    def summary_networks(self): 
         # Create generator
-        unet_generator=networks.define_unet_generator(model_name='resnet_generator')
-        patch_discriminator = networks.define_patch_discriminator(model_name='patch_discriminator')
+        unet_generator=networks.define_generator(n_classes=self.args.n_classes, latent_dim=self.args.latent_dim, 
+                                                 model_name='generator')
+        patch_discriminator = networks.define_discriminator(n_classes=self.args.n_classes, model_name='discriminator')
 
         model_list = [unet_generator, patch_discriminator]
 
