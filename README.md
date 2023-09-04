@@ -1,6 +1,6 @@
 # Generative AI GANs
 
-Welcome to the GANs Playground! This repository is a showcase of the exciting work I undertook during my internship at BHSoft Company in Vietnam, in the summer of 2023, where I had the opportunity to implement and explore the captivating world of Generative Adversarial Networks (GANs) and their innovative cousins: Pix2Pix, Conditional GANs (cGANs), and CycleGAN. These models allowed me to generate novel data samples, perform intricate image-to-image translations, and dive deep into the realm of generative AI.
+Welcome to the GANs Playground! This repository is a showcase of the exciting work I undertook during my internship at BHSoft Company in Hanoi, Vietnam, in the summer of 2023, where I had the opportunity to implement and explore the captivating world of Generative Adversarial Networks (GANs) and their innovative cousins: Pix2Pix, Conditional GANs (cGANs), and CycleGAN. These models allowed me to generate novel data samples, perform intricate image-to-image translations, and dive deep into the realm of generative AI.
 
 # Overview
 
