@@ -1,6 +1,6 @@
-# Summer internship Generative AI
+# Generative AI GANs
 
-Welcome to the GANs Playground! This repository is a hub for exploring the fascinating realm of Generative Adversarial Networks (GANs) and their innovative cousins: Pix2Pix, Conditional GANs (cGANs), and CycleGAN. These models possess the remarkable ability to generate novel data samples, perform intricate image-to-image translations, and much more.
+Welcome to the GANs Playground! This repository is a showcase of the exciting work I undertook during my internship, where I had the opportunity to implement and explore the captivating world of Generative Adversarial Networks (GANs) and their innovative cousins: Pix2Pix, Conditional GANs (cGANs), and CycleGAN. These models allowed me to generate novel data samples, perform intricate image-to-image translations, and dive deep into the realm of generative AI.
 
 # Overview
 
