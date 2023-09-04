@@ -1,6 +1,6 @@
 # Generative AI GANs
 
-Welcome to the GANs Playground! This repository is a showcase of the exciting work I undertook during my internship, where I had the opportunity to implement and explore the captivating world of Generative Adversarial Networks (GANs) and their innovative cousins: Pix2Pix, Conditional GANs (cGANs), and CycleGAN. These models allowed me to generate novel data samples, perform intricate image-to-image translations, and dive deep into the realm of generative AI.
+Welcome to the GANs Playground! This repository is a showcase of the exciting work I undertook during my internship at BHSoft Company in Vietnam, in the summer of 2023, where I had the opportunity to implement and explore the captivating world of Generative Adversarial Networks (GANs) and their innovative cousins: Pix2Pix, Conditional GANs (cGANs), and CycleGAN. These models allowed me to generate novel data samples, perform intricate image-to-image translations, and dive deep into the realm of generative AI.
 
 # Overview
 
@@ -15,7 +15,7 @@ Welcome to the GANs Playground! This repository is a showcase of the exciting wo
 
 # Repository Contents
 
-- **GANs Implementation**: Dive into my GANs implementations in Python, crafted with the popular deep learning framework like TensorFlow. Here, you'll find code for training GANs, generating fresh data.
+- **GANs Implementation**: Dive into my GANs implementations in Python, crafted with popular deep learning frameworks like TensorFlow. Here, you'll find code for training GANs and generating fresh data.
 
 - **Conditional GAN Examples**: Delve into real-world examples of Conditional GANs, showcasing their prowess in generating data based on specific conditions or labels. Experiment with diverse datasets and conditions.
 
