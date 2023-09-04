@@ -40,7 +40,7 @@ if __name__ == '__main__':
                         help= 'results dir name')
     
     # Data link and name
-    choice_list = ['cityscapes', 'edges2handbags', 'edges2shoes', 'facades', 'maps', 'night2day']
+    choice_list = ['cityscapes', 'edges2handbags', 'edges2shoes', 'facades', 'maps', 'night2day', 'pokemon_pix2pix_dataset']
     parser.add_argument('--dataset_url', type=str, default='http://efrosgans.eecs.berkeley.edu/pix2pix/datasets',
                         help= 'url link to dataset')
     parser.add_argument('--dataset_name', type=str, required=False, choices=choice_list,

@@ -30,7 +30,7 @@ class Train:
 
     def set_paths(self):
         ### Checkpoints
-        self.path_ckpt_dir = self.args.checkpoints_dir
+        self.path_ckpt_dir = f'{self.args.checkpoints_dir}_{self.args.dataset_name}'
 
         # Epoch
         self.path_epoch_ckpt_dir = os.path.join(self.path_ckpt_dir, 'epoch')

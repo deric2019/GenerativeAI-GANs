@@ -1,37 +1,54 @@
-# GAN
-https://medium.com/@mnkrishn/gan-build-using-tensorflow-3d9ca7cef21f
+# Conditional Adversarial Networks in Tensorflow
 
-# Keras debugging tips
-https://www.google.com/search?client=safari&rls=en&q=tf+keras+debugging+tips&ie=UTF-8&oe=UTF-8
+## Adapted from
+https://towardsdatascience.com/cgan-conditional-generative-adversarial-network-how-to-gain-control-over-gan-outputs-b30620bd0cc8
+### MNIST 
 
-# Log in to server
-ssh bhsoft@117.6.135.148 -p 8691
+![Getting Started](pictures/mnist_training.gif)
 
-# Password
-bhsoft132
+### Fashion MNIST
+![Getting Started](pictures/fashion_mnist_training.gif)
 
-# Server
-folder = eric
-conda env = ericenv
+## Datasets
+The model is trained on two datasets: ['mnist', 'fashion_mnist']
 
+## Tensorflow implementation
+Install the required packages for the Tensorflow-based cGan:
 
-# Upload file from local to server
-➜  ~ 
-scp -r -P 8691 path_local path_server
+    pip install -r requirement.txt
 
-# Download file from server to local
-scp bhsoft@117.6.135.148  /Local/Path/
-scp -r -P 8691 path_server path_local
+## Training and testing the model
+### All the datasets can be run on default settings: 
 
+    python main.py --dataset_name [insert here] --mode train
+    python main.py --dataset_name [insert here] --mode test 
 
-# Dowload checkpoints and results into the projects main folder
-scp -r -P 8691 bhsoft@117.6.135.148:/home/bhsoft/eric/DCGAN_CELEB_A/results /Users/deric_lee/Downloads/Server/result
+e.g
 
 
-Generator and discriminator architecture
+    python main.py --dataset_name horse2zebra --mode train
+    python main.py --dataset_name horse2zebra --mode test 
 
-https://pytorch.org/tutorials/beginner/dcgan_faces_tutorial.html
 
+## Utils
 
-# Used Commands 
-python main.py --
+You can list available physical devices on your computer with
+
+    python main.py --utils list_devices
+
+Sample and plot from a chosen dataset
+
+    python main.py dataset_name [insert here] --utils viz_data
+
+Print and plot network architecture
+
+    python main.py --utils summary_networks
+
+## Results
+
+### Final trained model
+#### MNIST 
+![Getting Started](pictures/mnist.png)
+
+#### Fashion MNIST
+![Getting Started](pictures/fashion_mnist.png)

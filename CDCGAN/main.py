@@ -32,7 +32,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Available argument: mode, utils',
                                     formatter_class=argparse.RawTextHelpFormatter)
     # Folders to create
-    parser.add_argument('--checkpoints_dir', type=str, default='checkpoints',
+    parser.add_argument('--checkpoints_dir', type=str, default=f'checkpoints',
                         help= 'checkpoints dir name')
     parser.add_argument('--results_dir', type=str, default='results',
                         help= 'results dir name')

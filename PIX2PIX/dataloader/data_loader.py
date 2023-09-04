@@ -34,7 +34,8 @@ class DataLoader:
         
     def load_dataset(self):
         '''Load dataset from data, returns a dict of trainA, trainB, testA, testB'''
-        self.fetch_data()
+        if self.args.dataset_name != 'pokemon_pix2pix_dataset':
+            self.fetch_data()
         self.list_dataset_folders()
         return self.load_data_into_dataset()
         
@@ -75,29 +76,28 @@ class DataLoader:
             # Map image paths to tensor and preprocess pictures
             file_list_path = os.path.join(self.path_dataset_dir, folder + f'/*{img_type}')
             dataset_file_list = tf.data.Dataset.list_files(file_list_path)
-            match folder:
-                case 'train': 
-                    dataset_part = dataset_file_list.map(
-                        input_pipeline.load_and_preprocess_image_train, 
-                        num_parallel_calls=tf.data.AUTOTUNE).shuffle(buffer_size=buffer_size).batch(
-                        batch_size=batch_size, drop_remainder=True)
-                case 'val':
-                    dataset_part = dataset_file_list.map(
-                        input_pipeline.load_and_preprocess_image_val, 
-                        num_parallel_calls=tf.data.AUTOTUNE).shuffle(buffer_size=buffer_size).batch(
-                        batch_size=batch_size, drop_remainder=True)
-                case'test':
-                    dataset_part = dataset_file_list.map(
-                        input_pipeline.load_and_preprocess_image_test, 
-                        num_parallel_calls=tf.data.AUTOTUNE).shuffle(buffer_size=buffer_size).batch(
-                        batch_size=batch_size, drop_remainder=True)
+            if folder.startswith('train'):
+                dataset_part = dataset_file_list.map(
+                    input_pipeline.load_and_preprocess_image_train, 
+                    num_parallel_calls=tf.data.AUTOTUNE).shuffle(buffer_size=buffer_size).batch(
+                    batch_size=batch_size, drop_remainder=True)
+            elif folder.startswith('val'):
+                dataset_part = dataset_file_list.map(
+                    input_pipeline.load_and_preprocess_image_val, 
+                    num_parallel_calls=tf.data.AUTOTUNE).shuffle(buffer_size=buffer_size).batch(
+                    batch_size=batch_size, drop_remainder=True)
+            elif folder.startswith('test'):
+                dataset_part = dataset_file_list.map(
+                    input_pipeline.load_and_preprocess_image_test, 
+                    num_parallel_calls=tf.data.AUTOTUNE).shuffle(buffer_size=buffer_size).batch(
+                    batch_size=batch_size, drop_remainder=True)
             
             dataset[folder] = dataset_part 
 
         dataset['val'] = dataset['test'] if 'val' not in dataset else dataset['val']
-        dataset['test'] = dataset['val'] if 'test'not in dataset['test'] else dataset['test']
+        dataset['test'] = dataset['val'] if 'test' not in dataset else dataset['test']
 
         print('Finished loading and preprocessing dataset ...')
-        print('Returning img_train, img_val, img_test dataset ...')
+        print(f'Returning a dataset with{dataset.keys()}')
         
         return dataset

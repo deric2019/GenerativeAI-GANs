@@ -29,7 +29,7 @@ class Train:
 
     def set_paths(self):
         ### Checkpoints
-        self.path_ckpt_dir = self.args.checkpoints_dir
+        self.path_ckpt_dir = f'{self.args.checkpoints_dir}_{self.args.dataset_name}'
 
         # Epoch
         self.path_epoch_ckpt_dir = os.path.join(self.path_ckpt_dir, 'epoch')
@@ -123,6 +123,7 @@ class Train:
         
         ### Images
         images_callback = GenerateSaveImagesCallback(generator=cdcgan_o.generator, 
+                                                     dataset_name=self.args.dataset_name,
                                                      n_classes=self.args.n_classes,
                                                      latent_dim=self.args.latent_dim,
                                                      img_during_training_ckpt_dir=self.path_img_during_training_ckpt_dir,

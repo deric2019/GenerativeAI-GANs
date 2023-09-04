@@ -21,7 +21,7 @@ class Test():
     
     def set_paths(self):
         # Results
-        self.path_results_dir = self.args.results_dir
+        self.path_results_dir = f'{self.args.results_dir}_{self.args.dataset_name}'
 
         self.path_train_dir = os.path.join(self.path_results_dir, 'train')
         self.path_image_during_training_gif = os.path.join(self.path_train_dir, 'image_during_training.gif')
@@ -31,7 +31,7 @@ class Test():
         self.path_combined_generated_images_png = os.path.join(self.path_test_dir, 'combined_generated_images.png')
 
         ### Checkpoints
-        self.path_ckpt_dir = self.args.checkpoints_dir
+        self.path_ckpt_dir = f'{self.args.checkpoints_dir}_{self.args.dataset_name}'
 
         # Model: generator and discriminator
         self.path_model_ckpt_dir = os.path.join(self.path_ckpt_dir, 'models')

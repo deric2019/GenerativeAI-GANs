@@ -14,6 +14,7 @@ from utils.visualization import Visualization
 class GenerateSaveImagesCallback(tf.keras.callbacks.Callback):
     '''Generate and save the images during this training epoch'''
     def __init__(self, generator: tf.keras.Model, 
+                 dataset_name: str, 
                 n_classes: int,  
                 latent_dim: int,
                 img_during_training_ckpt_dir: str,
@@ -22,6 +23,7 @@ class GenerateSaveImagesCallback(tf.keras.callbacks.Callback):
 
         Args:
             generator_f (tf.keras.Model): generator_f model
+            dataset_name (str): dataset name
             n_classes (int): number of class labels
             latent_dim (int):  latent dim
             img_during_training_ckpt_dir (str):  path to the folder where the images saves
@@ -29,6 +31,8 @@ class GenerateSaveImagesCallback(tf.keras.callbacks.Callback):
         """
         super().__init__()
         self.generator = generator
+        self.dataset_name = dataset_name
+        self.fashion_mnist = True if self.dataset_name == 'fashion_mnist' else False
         self.n_classes = n_classes
         self.latent_dim = latent_dim
 
@@ -48,4 +52,4 @@ class GenerateSaveImagesCallback(tf.keras.callbacks.Callback):
                                                 n_classes=self.n_classes,
                                                 latent_dim=self.latent_dim,
                                                 suptitle='', save_path=save_path, 
-                                                training=True)
+                                                training=True, fashion_mnist=self.fashion_mnist)

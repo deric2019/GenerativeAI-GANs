@@ -23,12 +23,12 @@ class DataLoader:
         self.path_data_dir = self.args.data_dir
 
         ### Data images dir
-        self.data_name = self.args.dataset_name
+        self.dataset_name = self.args.dataset_name
         
-        self.path_dataset_dir = os.path.join(self.path_data_dir, self.data_name)
+        self.path_dataset_dir = os.path.join(self.path_data_dir, self.dataset_name)
 
         self.base_url = self.args.dataset_url
-        self.url = os.path.join(self.base_url, self.data_name)
+        self.url = os.path.join(self.base_url, self.dataset_name)
 
         ### Data images zip file
         self.path_data_compressed = self.path_dataset_dir + self.args.compressed_type
@@ -43,18 +43,18 @@ class DataLoader:
         '''Download compressed file from URL and extract it'''
         
         # Creating a new data folder if it does not already exists
-        FileManagement.create_folder_it_not_already_exists(self.path_dataset_dir)
+        FileManagement.create_folder_it_not_already_exists(self.path_data_dir)
 
         # Download data from url
         FetchData.download_data_from_url(self.url, self.path_data_compressed)
 
         # Extract compressed file
-        FetchData.extract_compressed_file(self.path_data_compressed, self.path_dataset_dir)
+        FetchData.extract_compressed_file(self.path_data_compressed, self.path_data_dir)
     
     
     def list_dataset_folders(self):
         self.dataset_folder_list = [folder for folder in os.listdir(self.path_dataset_dir) if not folder.startswith('.')]
-
+        print(self.dataset_folder_list)
     
     def load_data_into_dataset(self):
         'Returns a dictionary of '
